@@ -1,5 +1,6 @@
 package com.amazon.aws.spinnaker.plugin.registration
 
+import com.netflix.spinnaker.clouddriver.aws.security.config.AccountsConfiguration
 import com.netflix.spinnaker.clouddriver.aws.security.config.CredentialsConfig
 import com.netflix.spinnaker.clouddriver.ecs.security.ECSCredentialsConfig
 import org.springframework.http.ResponseEntity
@@ -15,9 +16,9 @@ class AccountsStatusSpec extends Specification {
 
     RestTemplate mockRest = Mock(RestTemplate)
 
-    CredentialsConfig credentialsConfig = new CredentialsConfig() {{
+    AccountsConfiguration credentialsConfig = new AccountsConfiguration() {{
         setAccounts([
-            new CredentialsConfig.Account() {{
+            new AccountsConfiguration.Account() {{
                 name = "test1"
                 accountId = "1"
                 assumeRole = "role/role1"
@@ -25,7 +26,7 @@ class AccountsStatusSpec extends Specification {
                 lambdaEnabled = false
                 enabled = true
             }},
-            new CredentialsConfig.Account() {{
+            new AccountsConfiguration.Account() {{
                 name = "test9"
                 accountId = "9"
                 assumeRole = "role/role9"
@@ -33,7 +34,7 @@ class AccountsStatusSpec extends Specification {
                 lambdaEnabled = true
                 enabled = true
             }},
-            new CredentialsConfig.Account() {{
+            new AccountsConfiguration.Account() {{
                 name = "test20"
                 accountId = "20"
                 assumeRole = "role/role20"

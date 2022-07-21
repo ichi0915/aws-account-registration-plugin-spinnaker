@@ -21,7 +21,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netflix.spinnaker.clouddriver.aws.security.config.AmazonCredentialsParser;
+import com.netflix.spinnaker.clouddriver.aws.security.config.AccountsConfiguration;
 import com.netflix.spinnaker.clouddriver.aws.security.config.CredentialsConfig;
 import com.netflix.spinnaker.clouddriver.ecs.security.ECSCredentialsConfig;
 import lombok.Data;
@@ -50,7 +50,7 @@ public class Response {
     private AccountPagination pagination;
 
     @JsonIgnore
-    HashMap<String, CredentialsConfig.Account> ec2Accounts;
+    HashMap<String, AccountsConfiguration.Account> ec2Accounts;
     @JsonIgnore
     HashMap<String, ECSCredentialsConfig.Account> ecsAccounts;
     @JsonIgnore
@@ -68,14 +68,14 @@ public class Response {
         }};
     }
 
-    private CredentialsConfig.Account makeEC2Account(CredentialsConfig credentialsConfig, Account account) {
+    private AccountsConfiguration.Account makeEC2Account(CredentialsConfig credentialsConfig, Account account) {
         List<CredentialsConfig.Region> regions = new ArrayList<>();
         for (String region : account.getRegions()) {
             CredentialsConfig.Region regionToAdd = new CredentialsConfig.Region();
             regionToAdd.setName(region.trim().toLowerCase());
             regions.add(regionToAdd);
         }
-        CredentialsConfig.Account ec2Account = new CredentialsConfig.Account() {{
+        AccountsConfiguration.Account ec2Account = new AccountsConfiguration.Account() {{
             setName(account.getName());
             setAccountId(account.getAccountId());
             setAssumeRole(account.getAssumeRole());
@@ -90,7 +90,7 @@ public class Response {
     }
 
     public boolean convertCredentials(CredentialsConfig credentialsConfig) {
-        HashMap<String, CredentialsConfig.Account> ec2Accounts = new HashMap<>();
+        HashMap<String, AccountsConfiguration.Account> ec2Accounts = new HashMap<>();
         HashMap<String, ECSCredentialsConfig.Account> ecsAccounts = new HashMap<>();
         List<String> deletedAccounts = new ArrayList<>();
         List<String> accountsToCheck = new ArrayList<>();
@@ -111,7 +111,7 @@ public class Response {
                 deletedAccounts.add(accountName);
                 continue;
             }
-            CredentialsConfig.Account ec2Account = makeEC2Account(credentialsConfig, account);
+            AccountsConfiguration.Account ec2Account = makeEC2Account(credentialsConfig, account);
             ec2Account.setLambdaEnabled(false);
             Set<String> cleanedProviders = generateCleanedSet(account.getProviders());
             for (String provider : cleanedProviders) {
@@ -154,7 +154,7 @@ public class Response {
     }
 
 
-    public CredentialsConfig.Account setDefaults(CredentialsConfig config, CredentialsConfig.Account account) {
+    public AccountsConfiguration.Account setDefaults(CredentialsConfig config, AccountsConfiguration.Account account) {
         if (account.getEnvironment() == null) {
             account.setEnvironment(account.getName());
         }
