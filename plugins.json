@@ -72,6 +72,15 @@
         "preferred": false,
         "compatibility": [],
         "url": "https://github.com/spinnaker-plugins/aws-account-registration-plugin-spinnaker/releases/download/1.2.0/aws-account-registration-plugin-spinnaker-1.2.0.zip"
+      },
+      {
+        "version": "8.2.4",
+        "date": "2022-07-21T23:35:38.363242Z",
+        "requires": "clouddriver>=7.1.0",
+        "sha512sum": "89d9455a8975e1d6d58b95191c5d828423fddb7515ad8a4c3d072dfe144c018221477447a3997cf5d76a39d9bf36349e5fcb5fe4f7f5d942e4d192854d16c9da",
+        "preferred": false,
+        "compatibility": [],
+        "url": "https://github.com/ichi0915/aws-account-registration-plugin-spinnaker/releases/download/8.2.4/aws-account-registration-plugin-spinnaker-8.2.4.zip"
       }
     ]
   }
