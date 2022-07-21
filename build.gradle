@@ -2,8 +2,6 @@ buildscript {
   repositories {
     mavenCentral()
   }
-  dependencies {
-  }
 }
 
 plugins {
