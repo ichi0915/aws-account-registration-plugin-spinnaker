@@ -1,10 +1,11 @@
 package com.amazon.aws.spinnaker.plugin.registration
 
 import com.netflix.spinnaker.clouddriver.aws.security.config.AccountsConfiguration
+import com.netflix.spinnaker.clouddriver.aws.security.config.CredentialsConfig
 import spock.lang.Specification
 
 class ResponseTestSpec extends Specification {
-    AccountsConfiguration AccountsConfiguration = new AccountsConfiguration(){{
+    CredentialsConfig credentialsConfig = new CredentialsConfig(){{
         setDefaultSecurityGroups(["sg1"])
         setDefaultKeyPairTemplate("{{name}}-keypair")
         setDefaultAssumeRole("defaultAssumeRole")
@@ -26,7 +27,7 @@ class ResponseTestSpec extends Specification {
         }}
 
         when:
-        response.convertCredentials(AccountsConfiguration)
+        response.convertCredentials(credentialsConfig)
 
         then:
         response.getEc2Accounts().values().size() == 1
@@ -58,7 +59,7 @@ class ResponseTestSpec extends Specification {
         }}
 
         when:
-        response.convertCredentials(AccountsConfiguration)
+        response.convertCredentials(credentialsConfig)
 
         then:
         response.getEc2Accounts().values().size() == 1
@@ -90,7 +91,7 @@ class ResponseTestSpec extends Specification {
         }}
 
         when:
-        response.convertCredentials(AccountsConfiguration)
+        response.convertCredentials(credentialsConfig)
 
         then:
         response.getEc2Accounts().values().size() == 0
@@ -109,7 +110,7 @@ class ResponseTestSpec extends Specification {
         }}
 
         when:
-        response.convertCredentials(AccountsConfiguration)
+        response.convertCredentials(credentialsConfig)
 
         then:
         response.getEc2Accounts().values().size() == 0
@@ -131,7 +132,7 @@ class ResponseTestSpec extends Specification {
         }}
 
         when:
-        response.convertCredentials(AccountsConfiguration)
+        response.convertCredentials(credentialsConfig)
 
         then:
         response.getEc2Accounts().values().size() == 0
@@ -153,7 +154,7 @@ class ResponseTestSpec extends Specification {
         }}
 
         when:
-        response.convertCredentials(AccountsConfiguration)
+        response.convertCredentials(credentialsConfig)
 
         then:
         response.getEc2Accounts().values().size() == 0

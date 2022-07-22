@@ -62,7 +62,7 @@ public class AccountRegistrationPlugin extends PrivilegedSpringPlugin {
 
     @Override
     public void start() {
-        log.info("{} plugin started", this.getClass().getSimpleName());
+        log.info("{} plugin started find nullllll", this.getClass().getSimpleName());
     }
 
     @Override

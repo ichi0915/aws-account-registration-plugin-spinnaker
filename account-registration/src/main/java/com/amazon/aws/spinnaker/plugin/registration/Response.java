@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netflix.spinnaker.clouddriver.aws.security.config.AmazonCredentialsParser;
 import com.netflix.spinnaker.clouddriver.aws.security.config.AccountsConfiguration;
+import com.netflix.spinnaker.clouddriver.aws.security.config.CredentialsConfig;
 import com.netflix.spinnaker.clouddriver.ecs.security.ECSCredentialsConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -68,10 +69,10 @@ public class Response {
         }};
     }
 
-    private AccountsConfiguration.Account makeEC2Account(AccountsConfiguration AccountsConfiguration, Account account) {
-        List<AccountsConfiguration.Region> regions = new ArrayList<>();
+    private AccountsConfiguration.Account makeEC2Account(CredentialsConfig config, Account account) {
+        List<CredentialsConfig.Region> regions = new ArrayList<>();
         for (String region : account.getRegions()) {
-            AccountsConfiguration.Region regionToAdd = new AccountsConfiguration.Region();
+            CredentialsConfig.Region regionToAdd = new CredentialsConfig.Region();
             regionToAdd.setName(region.trim().toLowerCase());
             regions.add(regionToAdd);
         }
@@ -86,10 +87,10 @@ public class Response {
         if (!account.getAssumeRole().toLowerCase().startsWith("role/")) {
             ec2Account.setAssumeRole(String.format("role/%s", account.getAssumeRole()));
         }
-        return setDefaults(AccountsConfiguration, ec2Account);
+        return setDefaults(config, ec2Account);
     }
 
-    public boolean convertCredentials(AccountsConfiguration AccountsConfiguration) {
+    public boolean convertCredentials(CredentialsConfig config) {
         HashMap<String, AccountsConfiguration.Account> ec2Accounts = new HashMap<>();
         HashMap<String, ECSCredentialsConfig.Account> ecsAccounts = new HashMap<>();
         List<String> deletedAccounts = new ArrayList<>();
@@ -111,7 +112,7 @@ public class Response {
                 deletedAccounts.add(accountName);
                 continue;
             }
-            AccountsConfiguration.Account ec2Account = makeEC2Account(AccountsConfiguration, account);
+            AccountsConfiguration.Account ec2Account = makeEC2Account(config, account);
             ec2Account.setLambdaEnabled(false);
             Set<String> cleanedProviders = generateCleanedSet(account.getProviders());
             for (String provider : cleanedProviders) {
@@ -154,7 +155,7 @@ public class Response {
     }
 
 
-    public AccountsConfiguration.Account setDefaults(AccountsConfiguration config, AccountsConfiguration.Account account) {
+    public AccountsConfiguration.Account setDefaults(CredentialsConfig config, AccountsConfiguration.Account account) {
         if (account.getEnvironment() == null) {
             account.setEnvironment(account.getName());
         }
@@ -195,7 +196,7 @@ public class Response {
                 getDefaultValue(
                         templateContext, account.getBastionHost(), config.getDefaultBastionHostTemplate()));
         if (account.getLifecycleHooks() != null) {
-            for (AccountsConfiguration.LifecycleHook lifecycleHook : account.getLifecycleHooks()) {
+            for (CredentialsConfig.LifecycleHook lifecycleHook : account.getLifecycleHooks()) {
                 lifecycleHook.setRoleARN(
                         getDefaultValue(
                                 templateContext,

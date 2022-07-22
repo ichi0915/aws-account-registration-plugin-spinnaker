@@ -1,21 +1,21 @@
 package com.amazon.aws.spinnaker.plugin.registration
 
-import com.netflix.spinnaker.clouddriver.aws.security.config.AccountsConfiguration
 import spock.lang.Specification
+import com.netflix.spinnaker.clouddriver.aws.security.config.AccountsConfiguration
 
 class AwsCredentialsDefinitionSourceSpec extends Specification {
     def accountsStatus = Mock(AccountsStatus)
-    def AccountsConfiguration = Mock(AccountsConfiguration)
+    def accountsConfiguration = Mock(AccountsConfiguration)
 
     def 'should check remote'() {
         given:
-        def definitionSource = new AwsCredentialsDefinitionSource(accountsStatus, AccountsConfiguration)
+        def definitionSource = new AwsCredentialsDefinitionSource(accountsStatus, accountsConfiguration)
 
         when:
         def definitions = definitionSource.getCredentialsDefinitions()
 
         then:
-        1 * AccountsConfiguration.getAccounts() >> [Mock(AccountsConfiguration.Account)]
+        1 * accountsConfiguration.getAccounts() >> [Mock(AccountsConfiguration.Account)]
         1 * accountsStatus.getDesiredAccounts() >> true
         1 * accountsStatus.getEC2AccountsAsList() >> [Mock(AccountsConfiguration.Account), Mock(AccountsConfiguration.Account)]
         definitions.size() == 2
@@ -23,7 +23,7 @@ class AwsCredentialsDefinitionSourceSpec extends Specification {
 
     def 'should not check remote'() {
         given:
-        def definitionSource = new AwsCredentialsDefinitionSource(accountsStatus, AccountsConfiguration)
+        def definitionSource = new AwsCredentialsDefinitionSource(accountsStatus, accountsConfiguration)
 
         when:
         def definitions = definitionSource.getCredentialsDefinitions()

@@ -9,19 +9,19 @@ import java.util.List;
 
 public class AwsCredentialsDefinitionSource implements CredentialsDefinitionSource<AccountsConfiguration.Account> {
     private final AccountsStatus accountsStatus;
-    private final AccountsConfiguration AccountsConfiguration;
+    private final AccountsConfiguration accountsConfiguration;
     private List<AccountsConfiguration.Account> awsCredentialsDefinitions;
 
     @Autowired
-    AwsCredentialsDefinitionSource(AccountsStatus accountsStatus, AccountsConfiguration AccountsConfiguration) {
+    AwsCredentialsDefinitionSource(AccountsStatus accountsStatus, AccountsConfiguration accountsConfiguration) {
         this.accountsStatus = accountsStatus;
-        this.AccountsConfiguration = AccountsConfiguration;
+        this.accountsConfiguration = accountsConfiguration;
     }
 
     @Override
     public List<AccountsConfiguration.Account> getCredentialsDefinitions() {
         if (awsCredentialsDefinitions == null) {
-            awsCredentialsDefinitions = AccountsConfiguration.getAccounts();
+            awsCredentialsDefinitions = accountsConfiguration.getAccounts();
         }
         if (accountsStatus.getDesiredAccounts()) {
             awsCredentialsDefinitions = accountsStatus.getEC2AccountsAsList();
