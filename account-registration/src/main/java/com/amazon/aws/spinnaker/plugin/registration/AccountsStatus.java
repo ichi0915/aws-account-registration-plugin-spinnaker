@@ -24,7 +24,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.netflix.spinnaker.clouddriver.aws.security.config.CredentialsConfig;
+import com.netflix.spinnaker.clouddriver.aws.security.config.AccountsConfiguration;
 import com.netflix.spinnaker.clouddriver.ecs.security.ECSCredentialsConfig;
 import com.netflix.spinnaker.credentials.definition.CredentialsDefinition;
 import lombok.Data;
@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Data
 public class AccountsStatus {
-    public HashMap<String, CredentialsConfig.Account> ec2Accounts;
+    public HashMap<String, AccountsConfiguration.Account> ec2Accounts;
     public HashMap<String, ECSCredentialsConfig.Account> ecsAccounts;
     private String lastSyncTime;
     private String lastAttemptedTIme;
@@ -72,19 +72,19 @@ public class AccountsStatus {
     private AtomicInteger retryCount = new AtomicInteger(0);
     private Instant nextTry;
     private RestTemplate restTemplate;
-    private final CredentialsConfig credentialsConfig;
-    private ECSCredentialsConfig ecsCredentialsConfig;
+    private final AccountsConfiguration AccountsConfiguration;
+    private ECSCredentialsConfig ECSCredentialsConfig;
     private HeaderGenerator headerGenerator;
     private boolean initialSync;
 
     @Autowired
     AccountsStatus(
-            CredentialsConfig credentialsConfig,
+            AccountsConfiguration AccountsConfiguration,
             @Value("${accountProvision.url:http://localhost:8080}") String url,
             @Value("${accountProvision.connectionTimeout:2000}") Long connectionTimeout,
             @Value("${accountProvision.readTimeout:6000}") Long readTimeout
     ) {
-        this.credentialsConfig = credentialsConfig;
+        this.AccountsConfiguration = AccountsConfiguration;
         this.remoteHostUrl = url;
         this.restTemplate = new RestTemplateBuilder()
                 .interceptors(new PlusEncoderInterceptor())
@@ -97,11 +97,11 @@ public class AccountsStatus {
     }
 
     @Autowired(required = false)
-    void setECSCredentialsConfig(ECSCredentialsConfig ecsCredentialsConfig) {
-        this.ecsCredentialsConfig = ecsCredentialsConfig;
+    void setECSCredentialsConfig(ECSCredentialsConfig ECSCredentialsConfig) {
+        this.ECSCredentialsConfig = ECSCredentialsConfig;
     }
 
-    public List<CredentialsConfig.Account> getEC2AccountsAsList() {
+    public List<AccountsConfiguration.Account> getEC2AccountsAsList() {
         return ImmutableList.copyOf(ec2Accounts.values());
     }
 
@@ -164,7 +164,7 @@ public class AccountsStatus {
         log.info("Setting last sync attempt time to {}", mostRecentTime);
         this.lastAttemptedTIme = mostRecentTime;
         log.info("Converting {} accounts to Spinnaker account types.", response.getAccounts().size());
-        if (response.convertCredentials(credentialsConfig)) {
+        if (response.convertCredentials(AccountsConfiguration)) {
             buildDesiredAccountConfig(response.getEc2Accounts(), response.getEcsAccounts(), response.getDeletedAccounts(),
                     response.getAccountsToCheck());
             markSynced();
@@ -174,26 +174,26 @@ public class AccountsStatus {
         return false;
     }
 
-    private void buildDesiredAccountConfig(HashMap<String, CredentialsConfig.Account> ec2AccountsFromRemote,
+    private void buildDesiredAccountConfig(HashMap<String, AccountsConfiguration.Account> ec2AccountsFromRemote,
                                            HashMap<String, ECSCredentialsConfig.Account> ecsAccountsFromRemote,
                                            List<String> deletedAccounts, List<String> accountsToCheck) {
         // Always use external source as credentials repo's correct state.
-        // CredentialsConfig should be considered on initial sync only since it contains accounts from local file only.
-        if (credentialsConfig.getAccounts() == null) {
+        // AccountsConfiguration should be considered on initial sync only since it contains accounts from local file only.
+        if (AccountsConfiguration.getAccounts() == null) {
             log.error("Current configured accounts is null. Very likely this is a configuration issue.");
             return;
         }
         log.debug("Current configured EC2 accounts: {}", getEC2AccountsAsList().stream()
-                .map(CredentialsConfig.Account::getName).collect(Collectors.toList()));
+                .map(AccountsConfiguration.Account::getName).collect(Collectors.toList()));
         log.debug("Current configured ECS accounts: {}", getECSAccountsAsList().stream()
                 .map(ECSCredentialsConfig.Account::getName).collect(Collectors.toList()));
         if (initialSync) {
-            log.debug("Initial sync. EC2 Accounts from file {}", credentialsConfig.getAccounts().stream()
-                    .map(CredentialsConfig.Account::getName).collect(Collectors.toList()));
-            log.debug("Initial sync. ECS Accounts from file {}", ecsCredentialsConfig.getAccounts().stream()
+            log.debug("Initial sync. EC2 Accounts from file {}", AccountsConfiguration.getAccounts().stream()
+                    .map(AccountsConfiguration.Account::getName).collect(Collectors.toList()));
+            log.debug("Initial sync. ECS Accounts from file {}", ECSCredentialsConfig.getAccounts().stream()
                     .map(ECSCredentialsConfig.Account::getName).collect(Collectors.toList()));
-            resolveAccounts(ec2AccountsFromRemote, credentialsConfig.getAccounts(), deletedAccounts);
-            resolveAccounts(ecsAccountsFromRemote, ecsCredentialsConfig.getAccounts(), deletedAccounts);
+            resolveAccounts(ec2AccountsFromRemote, AccountsConfiguration.getAccounts(), deletedAccounts);
+            resolveAccounts(ecsAccountsFromRemote, ECSCredentialsConfig.getAccounts(), deletedAccounts);
         } else {
             resolveAccounts(ec2AccountsFromRemote, getEC2AccountsAsList(), deletedAccounts);
             resolveAccounts(ecsAccountsFromRemote, getECSAccountsAsList(), deletedAccounts);
@@ -256,9 +256,9 @@ public class AccountsStatus {
     private void makeHeaderGenerator(String url) {
         log.debug("Generating AWS signature version 4 headers.");
         AWSCredentialsProvider awsCredentialsProvider;
-        if (credentialsConfig.getAccessKeyId() != null && credentialsConfig.getSecretAccessKey() != null) {
+        if (AccountsConfiguration.getAccessKeyId() != null && AccountsConfiguration.getSecretAccessKey() != null) {
             awsCredentialsProvider = new AWSStaticCredentialsProvider(
-                    new BasicAWSCredentials(credentialsConfig.getAccessKeyId(), credentialsConfig.getSecretAccessKey())
+                    new BasicAWSCredentials(AccountsConfiguration.getAccessKeyId(), AccountsConfiguration.getSecretAccessKey())
             );
         } else {
             log.info("Attempting to obtain AWS credentials from default chain.");

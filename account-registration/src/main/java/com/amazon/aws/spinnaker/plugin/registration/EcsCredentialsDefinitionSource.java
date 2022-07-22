@@ -8,11 +8,11 @@ import java.util.List;
 
 public class EcsCredentialsDefinitionSource implements CredentialsDefinitionSource<ECSCredentialsConfig.Account> {
     private final AccountsStatus accountsStatus;
-    private final ECSCredentialsConfig ecsCredentialsConfig;
+    private final ECSCredentialsConfig ECSCredentialsConfig;
 
-    public EcsCredentialsDefinitionSource(AccountsStatus accountsStatus, ECSCredentialsConfig ecsCredentialsConfig) {
+    public EcsCredentialsDefinitionSource(AccountsStatus accountsStatus, ECSCredentialsConfig ECSCredentialsConfig) {
         this.accountsStatus = accountsStatus;
-        this.ecsCredentialsConfig = ecsCredentialsConfig;
+        this.ECSCredentialsConfig = ECSCredentialsConfig;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class EcsCredentialsDefinitionSource implements CredentialsDefinitionSour
         if (!remoteList.isEmpty()) {
             ecsCredentialsDefinitions = remoteList;
         } else {
-            ecsCredentialsDefinitions = ecsCredentialsConfig.getAccounts();
+            ecsCredentialsDefinitions = ECSCredentialsConfig.getAccounts();
         }
         return ImmutableList.copyOf(ecsCredentialsDefinitions);
     }

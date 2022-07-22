@@ -1,6 +1,6 @@
 package com.amazon.aws.spinnaker.plugin.registration
 
-import com.netflix.spinnaker.clouddriver.aws.security.config.CredentialsConfig
+import com.netflix.spinnaker.clouddriver.aws.security.config.AccountsConfiguration
 import com.netflix.spinnaker.clouddriver.ecs.security.ECSCredentialsConfig
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
@@ -15,29 +15,29 @@ class AccountsStatusSpec extends Specification {
 
     RestTemplate mockRest = Mock(RestTemplate)
 
-    CredentialsConfig credentialsConfig = new CredentialsConfig() {{
+    AccountsConfiguration AccountsConfiguration = new AccountsConfiguration() {{
         setAccounts([
-            new CredentialsConfig.Account() {{
+            new AccountsConfiguration.Account() {{
                 name = "test1"
                 accountId = "1"
                 assumeRole = "role/role1"
-                regions = [new CredentialsConfig.Region(){{name = "us-west-2"}}]
+                regions = [new AccountsConfiguration.Region(){{name = "us-west-2"}}]
                 lambdaEnabled = false
                 enabled = true
             }},
-            new CredentialsConfig.Account() {{
+            new AccountsConfiguration.Account() {{
                 name = "test9"
                 accountId = "9"
                 assumeRole = "role/role9"
-                regions = [new CredentialsConfig.Region(){{name = "us-west-2"}}]
+                regions = [new AccountsConfiguration.Region(){{name = "us-west-2"}}]
                 lambdaEnabled = true
                 enabled = true
             }},
-            new CredentialsConfig.Account() {{
+            new AccountsConfiguration.Account() {{
                 name = "test20"
                 accountId = "20"
                 assumeRole = "role/role20"
-                regions = [new CredentialsConfig.Region(){{name = "us-west-2"}}]
+                regions = [new AccountsConfiguration.Region(){{name = "us-west-2"}}]
             }}
         ])
     }}
@@ -57,7 +57,7 @@ class AccountsStatusSpec extends Specification {
 
     def "no accounts should be returned"() {
         given:
-        AccountsStatus status = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello/", 0L, 0L) {{
+        AccountsStatus status = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello/", 0L, 0L) {{
             restTemplate = mockRest
         }}
 
@@ -72,7 +72,7 @@ class AccountsStatusSpec extends Specification {
 
     def "accounts should be overwritten"() {
         given:
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello/", 0L, 0L) {{
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello/", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
             nextTry = Instant.ofEpochSecond(0L)
@@ -105,7 +105,7 @@ class AccountsStatusSpec extends Specification {
     }
     def "it should call next URL"() {
         given:
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello/", 0L, 0L) {{
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello/", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
         }}
@@ -154,7 +154,7 @@ class AccountsStatusSpec extends Specification {
 
     def "it should remove empty provider accounts"() {
         given:
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello/", 0L, 0L) {{
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello/", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
         }}
@@ -187,7 +187,7 @@ class AccountsStatusSpec extends Specification {
 
     def "it should remove one account only after initial sync"() {
         given:
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello/", 0L, 0L) {{
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello/", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
         }}
@@ -243,7 +243,7 @@ class AccountsStatusSpec extends Specification {
 
     def "it should update one account only after initial sync"() {
         given:
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello/", 0L, 0L) {{
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello/", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
         }}
@@ -299,7 +299,7 @@ class AccountsStatusSpec extends Specification {
 
     def "it should add one account only after initial sync"() {
         given:
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello/", 0L, 0L) {{
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello/", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
         }}
@@ -347,9 +347,9 @@ class AccountsStatusSpec extends Specification {
 
     def "it should support API gateway and query strings"() {
         given:
-        credentialsConfig.setAccessKeyId("access")
-        credentialsConfig.setSecretAccessKey("secret")
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello?env=test&tag=test", 0L, 0L) {{
+        AccountsConfiguration.setAccessKeyId("access")
+        AccountsConfiguration.setSecretAccessKey("secret")
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello?env=test&tag=test", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
             iamAuth = true
@@ -380,9 +380,9 @@ class AccountsStatusSpec extends Specification {
 
     def "it should set backoff"() {
         given:
-        credentialsConfig.setAccessKeyId("access")
-        credentialsConfig.setSecretAccessKey("secret")
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello?env=test", 0L, 0L) {{
+        AccountsConfiguration.setAccessKeyId("access")
+        AccountsConfiguration.setSecretAccessKey("secret")
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello?env=test", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
             iamAuth = true
@@ -400,9 +400,9 @@ class AccountsStatusSpec extends Specification {
 
     def "it should retry on 403"() {
         given:
-        credentialsConfig.setAccessKeyId("access")
-        credentialsConfig.setSecretAccessKey("secret")
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello?env=test", 0L, 0L) {{
+        AccountsConfiguration.setAccessKeyId("access")
+        AccountsConfiguration.setSecretAccessKey("secret")
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello?env=test", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
             iamAuth = true
@@ -437,9 +437,9 @@ class AccountsStatusSpec extends Specification {
 
     def "it should not retry more than once on 403"() {
         given:
-        credentialsConfig.setAccessKeyId("access")
-        credentialsConfig.setSecretAccessKey("secret")
-        AccountsStatus accountsStatus = new AccountsStatus(credentialsConfig, "http://localhost:8080/hello?env=test", 0L, 0L) {{
+        AccountsConfiguration.setAccessKeyId("access")
+        AccountsConfiguration.setSecretAccessKey("secret")
+        AccountsStatus accountsStatus = new AccountsStatus(AccountsConfiguration, "http://localhost:8080/hello?env=test", 0L, 0L) {{
             restTemplate = mockRest
             setECSCredentialsConfig(ecsConfig)
             iamAuth = true
