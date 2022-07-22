@@ -29,7 +29,7 @@ class AwsCredentialsDefinitionSourceSpec extends Specification {
         def definitions = definitionSource.getCredentialsDefinitions()
 
         then:
-        1 * AccountsConfiguration.getAccounts() >> [Mock(AccountsConfiguration.Account)]
+        1 * accountsConfiguration.getAccounts() >> [Mock(AccountsConfiguration.Account)]
         1 * accountsStatus.getDesiredAccounts() >> false
         0 * accountsStatus.getEC2AccountsAsList() >> [Mock(AccountsConfiguration.Account), Mock(AccountsConfiguration.Account)]
         definitions.size() == 1
